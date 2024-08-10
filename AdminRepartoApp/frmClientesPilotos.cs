@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Form Hecho por Anika Miscelly Escoto Leon || 0901-21-8122
+using System;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 
@@ -11,11 +12,28 @@ namespace AdminRepartoApp
             InitializeComponent();
             HabilitarCamposCliente(false);
             HabilitarCamposPiloto(false);
+            DesactivarBotonesIniciales();
+        }
+
+        private void DesactivarBotonesIniciales()
+        {
+            btnVerClientes.Enabled = false;
+            btnGuardarCliente.Enabled = false;
+            btnCancelarCliente.Enabled = false;
+
+            btnVerPilotos.Enabled = false;
+            btnGuardarPiloto.Enabled = false;
+            btnCancelarPiloto.Enabled = false;
+
+            btnActualizarCliente.Enabled = false;
+            btnEliminarCliente.Enabled = false;
+
+            btnActualizarPiloto.Enabled = false;
+            btnEliminarPiloto.Enabled = false;
         }
 
         private void frmClientesPilotos_Load(object sender, EventArgs e)
         {
-            // Configurar la cadena de conexión
             string connectionString = "Server=127.0.0.1;Database=comercioelectronico;Uid=root;Pwd=161101;";
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -73,12 +91,12 @@ namespace AdminRepartoApp
         private void cmbBuscarCliente_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cmbBuscarCliente.SelectedItem == null)
+            {
+                HabilitarBotonesCliente(false);
                 return;
+            }
 
-            // Obtener el correo seleccionado
             string correo = cmbBuscarCliente.SelectedItem.ToString();
-
-            // Configurar la cadena de conexión
             string connectionString = "Server=127.0.0.1;Database=comercioelectronico;Uid=root;Pwd=161101;";
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -86,7 +104,7 @@ namespace AdminRepartoApp
                 {
                     connection.Open();
                     string query = @"
-                        SELECT dp.Nombres, dp.Apellidos, dp.Genero, dp.Direccion_Personal, dp.Correo_Personal, dp.DPI, dp.Telefono, dp.PromedioCalificaciones
+                        SELECT dp.Nombres, dp.Apellidos, dp.Genero, dp.Direccion_Personal, dp.Correo_Personal, dp.DPI, dp.Telefono, dp.PromedioCalificaciones, dp.Contrasena
                         FROM Datos_Personales dp
                         WHERE dp.Correo_Personal = @correo AND dp.ID_Cliente IS NOT NULL";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
@@ -103,8 +121,18 @@ namespace AdminRepartoApp
                         txtDPICliente.Text = reader["DPI"].ToString();
                         txtTelefonoCliente.Text = reader["Telefono"].ToString();
                         txtCalificacionCliente.Text = reader["PromedioCalificaciones"].ToString();
+                        txtContrasenaCliente.Text = reader["Contrasena"].ToString();
+                        txtConfirmarCliente.Text = reader["Contrasena"].ToString();
+
+                        if (txtContrasenaCliente.Text != txtConfirmarCliente.Text)
+                        {
+                            MessageBox.Show("Las contraseñas no coinciden.");
+                            HabilitarBotonesCliente(false);
+                            return;
+                        }
 
                         HabilitarCamposCliente(true);
+                        HabilitarBotonesCliente(true);
                     }
                     reader.Close();
                 }
@@ -118,12 +146,12 @@ namespace AdminRepartoApp
         private void cmbBuscarPiloto_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             if (cmbBuscarPiloto.SelectedItem == null)
+            {
+                HabilitarBotonesPiloto(false);
                 return;
+            }
 
-            // Obtener el correo seleccionado
             string correo = cmbBuscarPiloto.SelectedItem.ToString();
-
-            // Configurar la cadena de conexión
             string connectionString = "Server=127.0.0.1;Database=comercioelectronico;Uid=root;Pwd=161101;";
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -131,7 +159,7 @@ namespace AdminRepartoApp
                 {
                     connection.Open();
                     string query = @"
-                        SELECT dp.Nombres, dp.Apellidos, dp.Genero, dp.Direccion_Personal, dp.Correo_Personal, dp.DPI, dp.Telefono, dp.PromedioCalificaciones
+                        SELECT dp.Nombres, dp.Apellidos, dp.Genero, dp.Direccion_Personal, dp.Correo_Personal, dp.DPI, dp.Telefono, dp.PromedioCalificaciones, dp.Contrasena
                         FROM Datos_Personales dp
                         WHERE dp.Correo_Personal = @correo AND dp.ID_Piloto IS NOT NULL";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
@@ -148,8 +176,18 @@ namespace AdminRepartoApp
                         txtDPIPiloto.Text = reader["DPI"].ToString();
                         txtTelefonoPiloto.Text = reader["Telefono"].ToString();
                         txtCalificacionPiloto.Text = reader["PromedioCalificaciones"].ToString();
+                        txtContrasenaPiloto.Text = reader["Contrasena"].ToString();
+                        txtConfirmarPiloto.Text = reader["Contrasena"].ToString();
+
+                        if (txtContrasenaPiloto.Text != txtConfirmarPiloto.Text)
+                        {
+                            MessageBox.Show("Las contraseñas no coinciden.");
+                            HabilitarBotonesPiloto(false);
+                            return;
+                        }
 
                         HabilitarCamposPiloto(true);
+                        HabilitarBotonesPiloto(true);
                     }
                     reader.Close();
                 }
@@ -164,12 +202,24 @@ namespace AdminRepartoApp
         {
             HabilitarCamposCliente(true);
             LimpiarCamposCliente();
+            btnVerClientes.Enabled = true;
+            btnGuardarCliente.Enabled = true;
+            btnCancelarCliente.Enabled = true;
+            cmbBuscarCliente.Enabled = false;
+            btnActualizarCliente.Enabled = false;
+            btnEliminarCliente.Enabled = false;
         }
 
         private void btnAgregarPiloto_Click(object sender, EventArgs e)
         {
             HabilitarCamposPiloto(true);
             LimpiarCamposPiloto();
+            btnVerPilotos.Enabled = true;
+            btnGuardarPiloto.Enabled = true;
+            btnCancelarPiloto.Enabled = true;
+            cmbBuscarPiloto.Enabled = false;
+            btnActualizarPiloto.Enabled = false;
+            btnEliminarPiloto.Enabled = false;
         }
 
         private void btnGuardarCliente_Click(object sender, EventArgs e)
@@ -186,15 +236,13 @@ namespace AdminRepartoApp
                 {
                     connection.Open();
 
-                    // Insertar en la tabla Cliente y obtener el ID
                     string queryCliente = "INSERT INTO Cliente() VALUES(); SELECT LAST_INSERT_ID();";
                     MySqlCommand cmdCliente = new MySqlCommand(queryCliente, connection);
                     int idCliente = Convert.ToInt32(cmdCliente.ExecuteScalar());
 
-                    // Insertar en la tabla Datos_Personales con el ID_Cliente
                     string query = @"
-                        INSERT INTO Datos_Personales (Nombres, Apellidos, Genero, Direccion_Personal, Correo_Personal, DPI, Telefono, PromedioCalificaciones, ID_Cliente)
-                        VALUES (@nombres, @apellidos, @genero, @direccion, @correo, @dpi, @telefono, @calificacion, @idCliente)";
+                        INSERT INTO Datos_Personales (Nombres, Apellidos, Genero, Direccion_Personal, Correo_Personal, DPI, Telefono, PromedioCalificaciones, Contrasena, ID_Cliente)
+                        VALUES (@nombres, @apellidos, @genero, @direccion, @correo, @dpi, @telefono, @calificacion, @contrasena, @idCliente)";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@nombres", txtNombreCliente.Text);
                     cmd.Parameters.AddWithValue("@apellidos", txtApellidoCliente.Text);
@@ -204,6 +252,7 @@ namespace AdminRepartoApp
                     cmd.Parameters.AddWithValue("@dpi", txtDPICliente.Text);
                     cmd.Parameters.AddWithValue("@telefono", txtTelefonoCliente.Text);
                     cmd.Parameters.AddWithValue("@calificacion", Convert.ToDecimal(txtCalificacionCliente.Text));
+                    cmd.Parameters.AddWithValue("@contrasena", txtContrasenaCliente.Text);
                     cmd.Parameters.AddWithValue("@idCliente", idCliente);
 
                     cmd.ExecuteNonQuery();
@@ -211,6 +260,8 @@ namespace AdminRepartoApp
                     MessageBox.Show("Cliente guardado exitosamente.");
                     LimpiarCamposCliente();
                     HabilitarCamposCliente(false);
+                    DesactivarBotonesIniciales();
+                    cmbBuscarCliente.Enabled = true;
                 }
                 catch (MySqlException ex)
                 {
@@ -233,15 +284,13 @@ namespace AdminRepartoApp
                 {
                     connection.Open();
 
-                    // Insertar en la tabla Piloto y obtener el ID
                     string queryPiloto = "INSERT INTO Piloto() VALUES(); SELECT LAST_INSERT_ID();";
                     MySqlCommand cmdPiloto = new MySqlCommand(queryPiloto, connection);
                     int idPiloto = Convert.ToInt32(cmdPiloto.ExecuteScalar());
 
-                    // Insertar en la tabla Datos_Personales con el ID_Piloto
                     string query = @"
-                        INSERT INTO Datos_Personales (Nombres, Apellidos, Genero, Direccion_Personal, Correo_Personal, DPI, Telefono, PromedioCalificaciones, ID_Piloto)
-                        VALUES (@nombres, @apellidos, @genero, @direccion, @correo, @dpi, @telefono, @calificacion, @idPiloto)";
+                        INSERT INTO Datos_Personales (Nombres, Apellidos, Genero, Direccion_Personal, Correo_Personal, DPI, Telefono, PromedioCalificaciones, Contrasena, ID_Piloto)
+                        VALUES (@nombres, @apellidos, @genero, @direccion, @correo, @dpi, @telefono, @calificacion, @contrasena, @idPiloto)";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@nombres", txtNombrePiloto.Text);
                     cmd.Parameters.AddWithValue("@apellidos", txtApellidoPiloto.Text);
@@ -251,6 +300,7 @@ namespace AdminRepartoApp
                     cmd.Parameters.AddWithValue("@dpi", txtDPIPiloto.Text);
                     cmd.Parameters.AddWithValue("@telefono", txtTelefonoPiloto.Text);
                     cmd.Parameters.AddWithValue("@calificacion", Convert.ToDecimal(txtCalificacionPiloto.Text));
+                    cmd.Parameters.AddWithValue("@contrasena", txtContrasenaPiloto.Text);
                     cmd.Parameters.AddWithValue("@idPiloto", idPiloto);
 
                     cmd.ExecuteNonQuery();
@@ -258,6 +308,8 @@ namespace AdminRepartoApp
                     MessageBox.Show("Piloto guardado exitosamente.");
                     LimpiarCamposPiloto();
                     HabilitarCamposPiloto(false);
+                    DesactivarBotonesIniciales();
+                    cmbBuscarPiloto.Enabled = true;
                 }
                 catch (MySqlException ex)
                 {
@@ -276,10 +328,8 @@ namespace AdminRepartoApp
             txtDPICliente.Enabled = habilitar;
             txtTelefonoCliente.Enabled = habilitar;
             txtCalificacionCliente.Enabled = habilitar;
-            btnActualizarCliente.Enabled = habilitar;
-            btnEliminarCliente.Enabled = habilitar;
-            btnCancelarCliente.Enabled = habilitar;
-            btnGuardarCliente.Enabled = habilitar;
+            txtContrasenaCliente.Enabled = habilitar;
+            txtConfirmarCliente.Enabled = habilitar;
         }
 
         private void HabilitarCamposPiloto(bool habilitar)
@@ -292,10 +342,8 @@ namespace AdminRepartoApp
             txtDPIPiloto.Enabled = habilitar;
             txtTelefonoPiloto.Enabled = habilitar;
             txtCalificacionPiloto.Enabled = habilitar;
-            btnActualizarPiloto.Enabled = habilitar;
-            btnEliminarPiloto.Enabled = habilitar;
-            btnCancelarPiloto.Enabled = habilitar;
-            btnGuardarPiloto.Enabled = habilitar;
+            txtContrasenaPiloto.Enabled = habilitar;
+            txtConfirmarPiloto.Enabled = habilitar;
         }
 
         private void LimpiarCamposCliente()
@@ -308,6 +356,8 @@ namespace AdminRepartoApp
             txtDPICliente.Clear();
             txtTelefonoCliente.Clear();
             txtCalificacionCliente.Clear();
+            txtContrasenaCliente.Clear();
+            txtConfirmarCliente.Clear();
         }
 
         private void LimpiarCamposPiloto()
@@ -320,6 +370,8 @@ namespace AdminRepartoApp
             txtDPIPiloto.Clear();
             txtTelefonoPiloto.Clear();
             txtCalificacionPiloto.Clear();
+            txtContrasenaPiloto.Clear();
+            txtConfirmarPiloto.Clear();
         }
 
         private bool ValidarCamposCliente()
@@ -327,7 +379,8 @@ namespace AdminRepartoApp
             if (string.IsNullOrEmpty(txtNombreCliente.Text) || string.IsNullOrEmpty(txtApellidoCliente.Text) ||
                 cmbGeneroCliente.SelectedItem == null || string.IsNullOrEmpty(txtDireccionCliente.Text) ||
                 string.IsNullOrEmpty(txtCorreoCliente.Text) || string.IsNullOrEmpty(txtDPICliente.Text) ||
-                string.IsNullOrEmpty(txtTelefonoCliente.Text) || string.IsNullOrEmpty(txtCalificacionCliente.Text))
+                string.IsNullOrEmpty(txtTelefonoCliente.Text) || string.IsNullOrEmpty(txtCalificacionCliente.Text) ||
+                string.IsNullOrEmpty(txtContrasenaCliente.Text) || string.IsNullOrEmpty(txtConfirmarCliente.Text))
             {
                 MessageBox.Show("Todos los campos son obligatorios.");
                 return false;
@@ -339,6 +392,12 @@ namespace AdminRepartoApp
                 return false;
             }
 
+            if (txtContrasenaCliente.Text != txtConfirmarCliente.Text)
+            {
+                MessageBox.Show("Las contraseñas no coinciden.");
+                return false;
+            }
+
             return true;
         }
 
@@ -347,7 +406,8 @@ namespace AdminRepartoApp
             if (string.IsNullOrEmpty(txtNombrePiloto.Text) || string.IsNullOrEmpty(txtApellidoPiloto.Text) ||
                 cmbGeneroPiloto.SelectedItem == null || string.IsNullOrEmpty(txtDireccionPiloto.Text) ||
                 string.IsNullOrEmpty(txtCorreoPiloto.Text) || string.IsNullOrEmpty(txtDPIPiloto.Text) ||
-                string.IsNullOrEmpty(txtTelefonoPiloto.Text) || string.IsNullOrEmpty(txtCalificacionPiloto.Text))
+                string.IsNullOrEmpty(txtTelefonoPiloto.Text) || string.IsNullOrEmpty(txtCalificacionPiloto.Text) ||
+                string.IsNullOrEmpty(txtContrasenaPiloto.Text) || string.IsNullOrEmpty(txtConfirmarPiloto.Text))
             {
                 MessageBox.Show("Todos los campos son obligatorios.");
                 return false;
@@ -356,6 +416,12 @@ namespace AdminRepartoApp
             if (!decimal.TryParse(txtCalificacionPiloto.Text, out _))
             {
                 MessageBox.Show("La calificación debe ser un valor decimal.");
+                return false;
+            }
+
+            if (txtContrasenaPiloto.Text != txtConfirmarPiloto.Text)
+            {
+                MessageBox.Show("Las contraseñas no coinciden.");
                 return false;
             }
 
@@ -385,7 +451,7 @@ namespace AdminRepartoApp
                     string query = @"
                         UPDATE Datos_Personales 
                         SET Nombres = @nombres, Apellidos = @apellidos, Genero = @genero, Direccion_Personal = @direccion,
-                            Correo_Personal = @correo, DPI = @dpi, Telefono = @telefono, PromedioCalificaciones = @calificacion
+                            Correo_Personal = @correo, DPI = @dpi, Telefono = @telefono, PromedioCalificaciones = @calificacion, Contrasena = @contrasena
                         WHERE Correo_Personal = @correo AND ID_Cliente IS NOT NULL";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@nombres", txtNombreCliente.Text);
@@ -396,12 +462,14 @@ namespace AdminRepartoApp
                     cmd.Parameters.AddWithValue("@dpi", txtDPICliente.Text);
                     cmd.Parameters.AddWithValue("@telefono", txtTelefonoCliente.Text);
                     cmd.Parameters.AddWithValue("@calificacion", Convert.ToDecimal(txtCalificacionCliente.Text));
+                    cmd.Parameters.AddWithValue("@contrasena", txtContrasenaCliente.Text);
 
                     cmd.ExecuteNonQuery();
 
                     MessageBox.Show("Cliente actualizado exitosamente.");
                     LimpiarCamposCliente();
                     HabilitarCamposCliente(false);
+                    HabilitarBotonesCliente(false);
                 }
                 catch (MySqlException ex)
                 {
@@ -433,7 +501,7 @@ namespace AdminRepartoApp
                     string query = @"
                         UPDATE Datos_Personales 
                         SET Nombres = @nombres, Apellidos = @apellidos, Genero = @genero, Direccion_Personal = @direccion,
-                            Correo_Personal = @correo, DPI = @dpi, Telefono = @telefono, PromedioCalificaciones = @calificacion
+                            Correo_Personal = @correo, DPI = @dpi, Telefono = @telefono, PromedioCalificaciones = @calificacion, Contrasena = @contrasena
                         WHERE Correo_Personal = @correo AND ID_Piloto IS NOT NULL";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@nombres", txtNombrePiloto.Text);
@@ -444,12 +512,14 @@ namespace AdminRepartoApp
                     cmd.Parameters.AddWithValue("@dpi", txtDPIPiloto.Text);
                     cmd.Parameters.AddWithValue("@telefono", txtTelefonoPiloto.Text);
                     cmd.Parameters.AddWithValue("@calificacion", Convert.ToDecimal(txtCalificacionPiloto.Text));
+                    cmd.Parameters.AddWithValue("@contrasena", txtContrasenaPiloto.Text);
 
                     cmd.ExecuteNonQuery();
 
                     MessageBox.Show("Piloto actualizado exitosamente.");
                     LimpiarCamposPiloto();
                     HabilitarCamposPiloto(false);
+                    HabilitarBotonesPiloto(false);
                 }
                 catch (MySqlException ex)
                 {
@@ -487,6 +557,7 @@ namespace AdminRepartoApp
                             cmbBuscarCliente.Items.Remove(correo);
                             LimpiarCamposCliente();
                             HabilitarCamposCliente(false);
+                            HabilitarBotonesCliente(false);
                         }
                         else
                         {
@@ -530,6 +601,7 @@ namespace AdminRepartoApp
                             cmbBuscarPiloto.Items.Remove(correo);
                             LimpiarCamposPiloto();
                             HabilitarCamposPiloto(false);
+                            HabilitarBotonesPiloto(false);
                         }
                         else
                         {
@@ -548,12 +620,16 @@ namespace AdminRepartoApp
         {
             LimpiarCamposCliente();
             HabilitarCamposCliente(false);
+            DesactivarBotonesIniciales();
+            cmbBuscarCliente.Enabled = true;
         }
 
         private void btnCancelarPiloto_Click_1(object sender, EventArgs e)
         {
             LimpiarCamposPiloto();
             HabilitarCamposPiloto(false);
+            DesactivarBotonesIniciales();
+            cmbBuscarPiloto.Enabled = true;
         }
 
         private void btnVerClientes_Click(object sender, EventArgs e)
@@ -606,6 +682,18 @@ namespace AdminRepartoApp
                     MessageBox.Show("Error al cargar datos de pilotos: " + ex.Message);
                 }
             }
+        }
+
+        private void HabilitarBotonesCliente(bool habilitar)
+        {
+            btnActualizarCliente.Enabled = habilitar;
+            btnEliminarCliente.Enabled = habilitar;
+        }
+
+        private void HabilitarBotonesPiloto(bool habilitar)
+        {
+            btnActualizarPiloto.Enabled = habilitar;
+            btnEliminarPiloto.Enabled = habilitar;
         }
     }
 }
